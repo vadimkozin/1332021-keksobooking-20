@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Ulin Salma](https://up.htmlacademy.ru/javascript/20/user/1332021).
-* Наставник: `Неизвестно`.
+* Наставник: [Дмитрий Гуляев](https://htmlacademy.ru/profile/dima).
 
 ---
 

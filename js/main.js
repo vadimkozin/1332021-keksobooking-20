@@ -6,7 +6,13 @@ var cfg = {
   PIN_HEIGHT: 70,
   OFFERS_MAX: 8,
   TITLES: ['Каменный дом 250м', 'Дом из бруса', 'Аппартаменты ждут вас', 'Скамейка', 'Остров', 'Дом + баня', 'Срочно сдаю жильё!', 'Экономичный вариант', 'Шалаш!', 'Коттедж на двоих'],
-  ADDRESSES: ['100, 200', '120, 200', '150, 250', '170, 250', '200, 300', '220, 300', '250, 350', '270, 350', '300, 300', '320, 300', '500, 200', '530, 200', '600, 300', '600, 350', '640, 350'],
+  ADDRESS: {
+    fromX: 10, // координата начала по X
+    toX: 1200, // координата конца по X
+    fromY: 200, // координата начала по Y
+    toY: 600, // координата конца по Y
+    size: 20 // количество пар координат: ['10, 200', '20, 210', ..]
+  },
   PRICES: [100, 200, 300, 500, 800, 1000, 1500, 2000, 3000, 5000],
   TYPES: ['palace', 'flat', 'house', 'bungalo'],
   ROOMS: [1, 2, 3, 100],
@@ -15,20 +21,23 @@ var cfg = {
   CHECKOUT: ['12:00', '13:00', '14:00'],
   FEATURES: ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'],
   DESCRIPTIONS: ['Уютный дом', 'Красивое место', 'Отличная квартира', 'И всего мира мало', 'Остров в придачу', 'Дом и баня на участке', 'Скоростная трасса', 'Хорошие соседи', 'Участок на границе леса', 'Земляника вокруг'],
-  PHOTOS: [
-    'http://o0.github.io/assets/images/tokyo/hotel1.jpg',
-    'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
-    'http://o0.github.io/assets/images/tokyo/hotel3.jpg',
-    'http://o0.github.io/assets/images/tokyo/hotel4.jpg',
-    'http://o0.github.io/assets/images/tokyo/hotel5.jpg',
-    'http://o0.github.io/assets/images/tokyo/hotel6.jpg',
-    'http://o0.github.io/assets/images/tokyo/hotel7.jpg',
-    'http://o0.github.io/assets/images/tokyo/hotel8.jpg',
-    'http://o0.github.io/assets/images/tokyo/hotel9.jpg',
-    'http://o0.github.io/assets/images/tokyo/hotel10.jpg',
-    'http://o0.github.io/assets/images/tokyo/hotel11.jpg'
-  ]
+  PHOTOS: createArrayUrl('http://o0.github.io/assets/images/tokyo/hotel{{}}.jpg', '{{}}', 1, 20),
 };
+
+// возвращает массив url
+// createArrayUrl('http://image{{}}.jpg', '{{}}', 1, 10)
+// вернёт массив: ['http://image1.jpg', 'http://image2.jpg', .. 'http://image10.jpg']
+function createArrayUrl (urlTemplate, template, valueFrom, valueTo) {
+  var array = [];
+  var url = urlTemplate.split(template);
+
+  for (var i = Number(valueFrom); i <= Number(valueTo); i++) {
+    var item = url[0] + String(i) + url[1];
+    array.push(item);
+  }
+
+  return array;
+}
 
 // функции для разных случайных вещей
 var random = {
@@ -59,7 +68,22 @@ var random = {
 
   getNumberFromRange: function (from, to) {
     var range = Number(to) - Number(from) + 1;
-    return Math.floor(Math.random() * range);
+    return from + Math.floor(Math.random() * range);
+  },
+
+  // создаёт массив пар
+  // address.{fromX:100, toX:1000, fromY:50, toY:500, size:5} => ['100,50', '500,60', '900,100', '700,400', '655, 499']
+  createArrayPairs: function (address) {
+    var array = [];
+
+    for (var i = 0; i < address.size; i++) {
+      var x = this.getNumberFromRange(address.fromX, address.toX);
+      var y = this.getNumberFromRange(address.fromY, address.toY);
+      var item = String(x + ',' + y);
+      array.push(item);
+    }
+
+    return array;
   }
 };
 
@@ -120,7 +144,7 @@ function createOffer() {
 
   obj.offer = {};
   obj.offer.title = random.getItemFromArray(cfg.TITLES);
-  obj.offer.address = random.getItemFromArray(cfg.ADDRESSES);
+  obj.offer.address = random.getItemFromArray(random.createArrayPairs(cfg.ADDRESS));
   obj.offer.price = random.getItemFromArray(cfg.PRICES);
   obj.offer.type = random.getItemFromArray(cfg.TYPES);
   obj.offer.rooms = random.getItemFromArray(cfg.ROOMS);
@@ -186,3 +210,4 @@ var mapPins = qs('.map__pins');
 
 // вставляем маркеры с Предложениями жилья на карту
 mapPins.appendChild(createFragmentOffers(offers));
+

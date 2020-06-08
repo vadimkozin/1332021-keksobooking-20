@@ -150,12 +150,8 @@ var func = {
 
 };
 
-function qs(selector) {
-  return document.querySelector(selector);
-}
-
 // узнаём размеры площади для показа меток
-var mapSize = func.getElementSize(qs('.map__pins'));
+var mapSize = func.getElementSize(document.querySelector('.map__pins'));
 
 // создаём одно 'Предложение/Объявление'
 function createOffer() {
@@ -222,13 +218,13 @@ function renderOffer(offer) {
 var offers = createOffers(cfg.OFFERS_MAX);
 
 // ТЗ: У блока .map уберите класс .map--faded.
-qs('.map').classList.remove('map--faded');
+document.querySelector('.map').classList.remove('map--faded');
 
 // ТЗ: Итоговую разметку метки .map__pin можно взять из шаблона #pin
-var pinTemplate = qs('#pin').content.querySelector('.map__pin');
+var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
 
 // ТЗ: Отрисуйте сгенерированные DOM-элементы в блок .map__pins. Для вставки элементов используйте DocumentFragment.
-var mapPins = qs('.map__pins');
+var mapPins = document.querySelector('.map__pins');
 
 // вставляем маркеры с Предложениями жилья на карту
 mapPins.appendChild(createFragmentOffers(offers));

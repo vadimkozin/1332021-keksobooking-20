@@ -2,6 +2,11 @@
 
 // константы
 var cfg = {
+  VALID: {
+    minTitleLength: 30,
+    maxTitleLength: 100,
+  },
+
   MARK: {
     width: 50, // ширина обычных маркеров на карте
     height: 70, // высота
@@ -180,6 +185,16 @@ var housing = {
     return this.offers_;
   },
 
+  // возвращает Предложение по его id
+  getOfferById: function (id) {
+    for (var i = 0; i < this.offers.length; i++) {
+      if (this.offers[i].id === id) {
+        return this.offers[i];
+      }
+    }
+    return this.offers[0];
+  },
+
   // ТЗ: Итоговую разметку метки .map__pin можно взять из шаблона #pin
   pinTemplate: document.querySelector('#pin').content.querySelector('.map__pin'),
 
@@ -197,9 +212,14 @@ var housing = {
     return array;
   },
 
+  // уникальный идентификатор 'Предложения'
+  id: 0,
+
   // создание одного 'Предложения' жилья
   createOffer: function () {
     var obj = {};
+
+    obj.id = this.id++;
 
     obj.author = {};
     obj.author.avatar = func.getAvatar(cfg.OFFERS_MAX);
@@ -224,7 +244,7 @@ var housing = {
     return obj;
   },
 
-  // добавление 'Предложений' в DocumentFragment
+  // добавление маркера с 'Предложением' в DocumentFragment
   createFragmentOffers: function (offers) {
     var fragment = document.createDocumentFragment();
 
@@ -235,9 +255,11 @@ var housing = {
     return fragment;
   },
 
-  // подготовка одного Предложения для публикации
+  // подготовка маркера одного Предложения для публикации
+  // маркер связываем с данными из offers через атрибут dataset
   renderOffer: function (offer) {
     var element = this.pinTemplate.cloneNode(true);
+    element.setAttribute('data-offer-id', offer.id);
     var img = element.querySelector('img');
 
     img.src = offer.author.avatar;
@@ -268,6 +290,9 @@ var housing = {
 var card = {
   // ссылка на шаблон карточки
   cardTemplate: document.querySelector('#card').content.querySelector('.popup'),
+
+  // ссылка на кнопку закрытия карточки
+  cardClose: undefined,
 
   // возвращает список характеристик (ul) объекта размещения
   getListFeatures: function (features) {
@@ -341,6 +366,12 @@ var card = {
     // ТЗ: Замените src у аватарки пользователя — изображения, которое записано в .popup__avatar — на значения поля author.avatar отрисовываемого объекта.
     element.querySelector('.popup__avatar').src = offer.author.avatar;
 
+    // обработчик на кнопку закрытия карточки
+    this.cardClose = element.querySelector('.popup__close');
+    this.cardClose.addEventListener('click', this.onClickCardClose.bind(this));
+    this.cardClose.addEventListener('keydown', this.onKeydownCardClose.bind(this));
+    element.addEventListener('keydown', this.onKeydownCard.bind(this));
+
     return element;
   },
 
@@ -353,15 +384,48 @@ var card = {
     return fragment;
   },
 
-  // добавляет карточку offer перед элементом where.
-  renderCard: function (offer, where) {
-    where.before(this.createFragmentCard(offer));
+  // функция обратного вызова, применяется при закрытии карточки
+  // поле заполняется извне этого объекта в момент создания карточки
+  cbOnCloseCard: undefined,
+
+  // обработчик на кнопку закрытия по клику мышкой
+  onClickCardClose: function () {
+    this.close();
   },
 
-  // (временно) пустой метод, чтобы eslint не ругался пока card не используется
-  tmp: function () {
-    return null;
-  }
+  // обработчик на кнопку закрытия по нажатию клавиши Enter
+  onKeydownCardClose: function (evt) {
+    if (evt.key === 'Enter') {
+      this.close();
+    }
+  },
+
+  // обработчик нажания клавиши Escape при фокусе на карточке
+  onKeydownCard: function (evt) {
+    if (evt.key === 'Escape') {
+      this.close();
+    }
+  },
+
+  // закрытие карточки
+  close: function () {
+
+    if (this.cardClose) {
+      this.cardClose.closest('.popup').remove();
+      this.cardClose.removeEventListener('click', this.onClickCardClose);
+    }
+
+    if (this.cbOnCloseCard && typeof this.cbOnCloseCard === 'function') {
+      this.cbOnCloseCard();
+    }
+  },
+
+  // добавляет карточку с данными offer перед элементом where.
+  renderCard: function (offer, where, cbOnCloseCard) {
+    where.before(this.createFragmentCard(offer));
+    this.cbOnCloseCard = cbOnCloseCard;
+  },
+
 };
 
 
@@ -497,18 +561,21 @@ var mapPinMain = document.querySelector('.map__pin--main');
 address.setAddress(mapPinMain, 'main-inactive');
 
 // перевод страницы Кексобукинга в активный режим при нажатии левой клавиши мыши на главный маркер
-mapPinMain.addEventListener('mousedown', function (evt) {
+// нажатие на Enter тоже переводит в активный режим
+mapPinMain.addEventListener('mousedown', onMousedownMapPinMain);
+mapPinMain.addEventListener('keydown', onkeydownMapPinMain);
+
+function onMousedownMapPinMain(evt) {
   if (mouse.getPressButton(evt) === mouse.buttons.LEFT) {
     activeState();
   }
-});
+}
 
-// нажатие на Enter тоже переводит в активный режим
-mapPinMain.addEventListener('keydown', function (evt) {
+function onkeydownMapPinMain(evt) {
   if (evt.key === 'Enter') {
     activeState();
   }
-});
+}
 
 // Активное состояние
 function activeState() {
@@ -518,28 +585,71 @@ function activeState() {
   address.setAddress(mapPinMain, 'main-active');
   // отрисовка похожих объявлений на карте
   housing.showOffers();
-
-  // ..  показываем карточку с 1-м предложением
-  // var mapFilter = document.querySelector('.map .map__filters-container');
-  // card.renderCard(housing.offers[0], mapFilter);
-  card.tmp(); // временно чтобы eslint не ругался
+  // установка обработчиков на маркеры
+  installHandlersOnMapPins();
+  // снятие обработчиков с главного маркера
+  mapPinMain.removeEventListener('mousedown', onMousedownMapPinMain);
+  mapPinMain.removeEventListener('keydown', onkeydownMapPinMain);
 }
+
+// ------------------------------------
+// 12. Личный проект: доверяй, но проверяй (часть 2)
+function installHandlersOnMapPins() {
+  var mapPins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
+  var className = 'map__pin--active';
+
+  for (var i = 0; i < mapPins.length; i++) {
+    mapPins[i].addEventListener('click', onClickMapPin);
+  }
+
+  function onClickMapPin(evt) {
+
+    var parrent = evt.target.closest('button');
+    var offerId = Number(parrent.dataset.offerId);
+    var offer = housing.getOfferById(offerId);
+
+    card.close();
+
+    card.renderCard(offer, parrent, deselectAllPins);
+
+    parrent.classList.add(className);
+
+  }
+
+  function deselectAllPins() {
+    for (var j = 0; j < mapPins.length; j++) {
+      mapPins[j].classList.remove(className);
+    }
+  }
+
+}
+// -------------------------------------------
 
 // валидация выбора кол-ва гостей и количества комнат
 var roomNumber = document.querySelector('#room_number');
 var guestsNumber = document.querySelector('#capacity');
 var typeHousing = document.querySelector('#type');
 var price = document.querySelector('#price');
+var title = document.querySelector('#title');
+var timein = document.querySelector('#timein');
+var timeout = document.querySelector('#timeout');
+var addressField = document.querySelector('#address');
+
 var adForm = document.querySelector('.ad-form');
 var adFormSubmit = adForm.querySelector('button.ad-form__submit');
-// var adFormReset = adForm.querySelector('button.ad-form__reset');
+var adFormReset = adForm.querySelector('button.ad-form__reset');
 
 adForm.addEventListener('invalid', onInvalidAdForm, true);
 adForm.addEventListener('input', onInputAdForm, false);
 roomNumber.addEventListener('change', onChangeRoomsGuests, false);
 guestsNumber.addEventListener('change', onChangeRoomsGuests, false);
 adFormSubmit.addEventListener('click', onSubmitAdForm, false);
+adFormReset.addEventListener('click', onResetAdForm, false);
+
 typeHousing.addEventListener('change', onChangeTypeHousing, false);
+
+timein.addEventListener('change', onChangeTimeInOut, false);
+timeout.addEventListener('change', onChangeTimeInOut, false);
 
 // при загрузке синхронизируем "Тип жилья" и "Цена за ночь"
 synchronizeTypeWithPrice(typeHousing.value, true);
@@ -565,24 +675,33 @@ function onChangeTypeHousing(evt) {
 }
 
 function selectedItem(element) {
-  element.style.boxShadow = '0 0 3pt 2pt red';
+  element.style.outline = '2px solid red';
 }
 
 function unselectItem(element) {
-  element.style.boxShadow = 'none';
+  element.style.outline = 'none';
 }
 
 function onInvalidAdForm(evt) {
   var element = evt.target;
   selectedItem(element);
+
+  if (evt.target.name === 'title') {
+    onInvalidTitle(evt);
+  }
 }
 
 function onInputAdForm(evt) {
   var element = evt.target;
+
   if (element.validity.valid) {
     unselectItem(element);
   } else {
     selectedItem(element);
+  }
+
+  if (evt.target.name === 'title') {
+    onInputTitle(evt);
   }
 }
 
@@ -595,6 +714,17 @@ function onSubmitAdForm(evt) {
   if (valid) {
     adForm.submit();
   }
+}
+
+function onResetAdForm() {
+  var savedAddress = addressField.value;
+
+  adForm.reset();
+
+  setTimeout(function () {
+    addressField.value = savedAddress;
+  }, 100);
+
 }
 
 function onChangeRoomsGuests() {
@@ -648,3 +778,35 @@ function onChangeRoomsGuests() {
   }
 }
 
+function onInvalidTitle() {
+
+  if (title.validity.valueMissing) {
+    title.setCustomValidity('Обязательное поле!');
+  } else {
+    title.setCustomValidity('');
+  }
+}
+
+function onInputTitle() {
+  var valueLength = title.value.length;
+
+  if (valueLength < cfg.VALID.minTitleLength) {
+    title.setCustomValidity('Ещё ' + (cfg.VALID.minTitleLength - valueLength) + ' симв.');
+  } else if (valueLength > cfg.VALID.maxTitleLength) {
+    title.setCustomValidity('Удалите лишние ' + (valueLength - cfg.VALID.maxTitleLength) + ' симв.');
+  } else {
+    title.setCustomValidity('');
+  }
+}
+
+function onChangeTimeInOut(evt) {
+
+  var name = evt.target.name;
+
+  if (name === 'timein') {
+    timeout.value = timein.value;
+  } else if (name === 'timeout') {
+    timein.value = timeout.value;
+  }
+
+}

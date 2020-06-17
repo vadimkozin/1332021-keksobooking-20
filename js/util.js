@@ -28,6 +28,11 @@ window.util = (function () {
         action();
       }
     },
-
+    getElementSize: function (element) {
+      return {
+        width: element.offsetWidth,
+        height: element.offsetHeight
+      };
+    },
   };
 })();

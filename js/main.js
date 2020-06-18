@@ -60,7 +60,7 @@
   // адрес
   var address = {
 
-    elementAddress: document.querySelector('#address'),
+    element: document.querySelector('#address'),
 
     // вычисление координат в виде {x,y} в зависимости от расположения маркера и состояния
     getCoord: function (marker, markerState) {
@@ -95,7 +95,7 @@
     // заполнение поля адреса
     setAddress: function (marker, markerState) {
       var coord = this.getCoord(marker, markerState);
-      this.elementAddress.value = coord.x + ',' + coord.y;
+      this.element.value = coord.x + ',' + coord.y;
     },
 
   };
@@ -108,21 +108,21 @@
 
     // установка обработчиков на главную метку
     installHandle: function () {
-      this.element.addEventListener('mousedown', onMousedownMapPinMain);
+      // this.element.addEventListener('mousedown', onMousedownMapPinMain);
       this.element.addEventListener('keydown', onKeydownMapPinMain);
     },
 
     // снятие обработчиков с главной метки
     removeHandle: function () {
-      this.element.removeEventListener('mousedown', onMousedownMapPinMain);
+      // this.element.removeEventListener('mousedown', onMousedownMapPinMain);
       this.element.removeEventListener('keydown', onKeydownMapPinMain);
     },
 
   };
 
-  function onMousedownMapPinMain(evt) {
-    window.util.isLeftMouseButtonClick(evt, goActiveState);
-  }
+  // function onMousedownMapPinMain(evt) {
+  //   window.util.isLeftMouseButtonClick(evt, goActiveState);
+  // }
 
   function onKeydownMapPinMain(evt) {
     window.util.isEnterEvent(evt, goActiveState);
@@ -137,7 +137,7 @@
     window.map.showPins();
     // установка обработчиков на метки
     installHandlersOnMapPins();
-    // снятие обработчиков с главного маркера
+    // снятие обработчиков с главной метки
     mainPin.removeHandle();
   }
 
@@ -175,10 +175,24 @@
   // ТЗ: сначала НЕ активное состояние
   state.setInactiveState();
 
-  // установка обработчиков на главный маркер
+  // установка обработчиков на главную метку
   mainPin.installHandle();
 
   // ТЗ: Поле адреса должно быть заполнено всегда, в том числе сразу после открытия страницы (в неактивном состоянии).
   address.setAddress(mainPin.element, 'main-inactive');
+
+  // Подготовка главной метки к перетаскиванию
+  var options = {
+    size: window.util.getElementSize(document.querySelector('.map__pins')), // размер {width, hieght} поля перемещения метки
+    zIndex: 100, // z-index на время перемещения
+    objHeight: window.cfg.mark.MAIN_ACTIVE_HEIGHT, // высота передвигаемого объекта
+    objWidth: window.cfg.mark.MAIN_ACTIVE_WIDTH, // ширина передвигаемого объекта
+  };
+
+  var onMainPinMove = function () {
+    address.setAddress(mainPin.element, 'main-active');
+  };
+
+  window.move.init(mainPin.element, mainPin.element, options, goActiveState, onMainPinMove);
 
 })();

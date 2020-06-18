@@ -22,19 +22,12 @@ window.data = (function () {
       }
       return n;
     },
-
-    getElementSize: function (element) {
-      return {
-        width: element.offsetWidth,
-        height: element.offsetHeight
-      };
-    },
   };
 
   var data = {
 
     // размер площадки {width, height} для показа меток
-    mapSize: func.getElementSize(document.querySelector('.map__pins')),
+    mapSize: window.util.getElementSize(document.querySelector('.map__pins')),
 
     // Предложения:
     offers_: [],

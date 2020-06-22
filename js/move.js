@@ -11,37 +11,37 @@ window.move = (function () {
    *    @param {number} objHeight - высота передвигаемого объекта,
    *    @param {number} objWidth - ширина передвигаемого объекта,
    *
-   * @param {function} cbBegin - вызывается при первом 'прикасании' к объекту
+   * @param {function} cbBegin - вызывается при первом 'прикосновении' к объекту
    * @param {function} cbMoving - вызывается при каждом перемещении объекта
    */
 
   function init(movableObject, handle, options, cbBegin, cbMoving) {
 
+    var opts = JSON.parse(JSON.stringify(options));
+    opts.isReturnAsItWas = (opts.isReturnAsItWas === undefined) ? false : opts.isReturnAsItWas;
+    opts.zIndex = opts.zIndex || 100;
     // Если высота/ширина объекта перетаскивания заданы, то беруться они, иначе вычисляются
-    options.isReturnAsItWas = options.isReturnAsItWas ? options.isReturnAsItWas : false;
-    options.zIndex = options.zIndex ? options.zIndex : 100;
-    options.objHeight = options.objHeight ? options.objHeight : movableObject.offsetHeight;
-    options.objWidth = options.objWidth ? options.objWidth : movableObject.offsetWidth;
+    opts.objHeight = opts.objHeight || movableObject.offsetHeight;
+    opts.objWidth = opts.objWidth || movableObject.offsetWidth;
 
-
-    if (!(cbBegin && typeof cbBegin === 'function')) {
+    if (typeof cbBegin !== 'function') {
       cbBegin = null;
+    }
+
+    if (typeof cbMoving !== 'function') {
+      cbMoving = null;
     }
 
     var one = {
       touch: false,
-      callback: (cbBegin && typeof cbBegin === 'function') ? cbBegin : null,
+      callback: cbBegin,
     };
-
-    if (!(cbMoving && typeof cbMoving === 'function')) {
-      cbMoving = null;
-    }
 
     // ограничения в перетаскивании
     var leftMin = -(movableObject.offsetWidth / 2);
-    var leftMax = options.size.width - (options.objWidth / 2);
-    var topMin = -(options.objWidth / 2);
-    var topMax = options.size.height - (options.objHeight);
+    var leftMax = opts.size.width - (opts.objWidth / 2);
+    var topMin = -(opts.objWidth / 2);
+    var topMax = opts.size.height - (opts.objHeight);
 
     var style = getComputedStyle(movableObject);
 
@@ -77,7 +77,7 @@ window.move = (function () {
         moveEvt.preventDefault();
 
         // dragged = true;
-        movableObject.style.zIndex = options.zIndex;
+        movableObject.style.zIndex = opts.zIndex;
 
         var shift = {
           x: startCoords.x - moveEvt.clientX,
@@ -119,7 +119,7 @@ window.move = (function () {
         //   handle.addEventListener('click', onClickPreventDefault);
         // }
 
-        if (options.isReturnAsItWas) {
+        if (opts.isReturnAsItWas) {
           movableObject.style.top = originalCoords.top;
           movableObject.style.left = originalCoords.left;
         }

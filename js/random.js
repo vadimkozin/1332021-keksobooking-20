@@ -47,6 +47,24 @@ window.random = (function () {
       }
 
       return array;
+    },
+
+    // возвращает набор случайных значений (всего их size) в диапазоне 0..max
+    getSetValues: function (size, max) {
+      var array = [];
+
+      if (size > max) {
+        throw new Error('Ошибка: количество значений превышает максимальное.');
+      }
+
+      do {
+        var value = Math.floor(Math.random() * max); // 0 .. max
+        if (array.indexOf(value) === -1) {
+          array.push(value);
+        }
+      } while (array.length < size);
+
+      return array;
     }
   };
 

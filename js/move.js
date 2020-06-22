@@ -17,6 +17,7 @@ window.move = (function () {
 
   function init(movableObject, handle, options, cbBegin, cbMoving) {
 
+    // options - объект, его лучше склонировать чтобы случайно не испортить
     var opts = JSON.parse(JSON.stringify(options));
     opts.isReturnAsItWas = (opts.isReturnAsItWas === undefined) ? false : opts.isReturnAsItWas;
     opts.zIndex = opts.zIndex || 100;
@@ -32,6 +33,7 @@ window.move = (function () {
       cbMoving = null;
     }
 
+    // объект для применения callback ОДИН раз
     var one = {
       touch: false,
       callback: cbBegin,

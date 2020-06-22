@@ -16,13 +16,13 @@ window.pin = (function () {
       return 'left:' + left + ';top:' + top + ';'; // "left: 100px; top:20px;"
     },
 
-    getLocation__: function (offer) {
-      var address = this.trimSpaces(offer.offer.address).split(','); // '100, 200' -> ['100','200'];
-      var left = Math.round((Number(address[0]) - window.cfg.mark.WIDTH / 2)) + 'px';
-      var top = Math.round((Number(address[1]) - window.cfg.mark.HEIGHT)) + 'px';
+    // getLocation__: function (offer) {
+    //   var address = this.trimSpaces(offer.offer.address).split(','); // '100, 200' -> ['100','200'];
+    //   var left = Math.round((Number(address[0]) - window.cfg.mark.WIDTH / 2)) + 'px';
+    //   var top = Math.round((Number(address[1]) - window.cfg.mark.HEIGHT)) + 'px';
 
-      return 'left:' + left + ';top:' + top + ';'; // "left: 100px; top:20px;"
-    },
+    //   return 'left:' + left + ';top:' + top + ';'; // "left: 100px; top:20px;"
+    // },
   };
 
   // ТЗ: Итоговую разметку метки .map__pin можно взять из шаблона #pin

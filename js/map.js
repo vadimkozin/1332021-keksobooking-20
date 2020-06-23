@@ -25,6 +25,8 @@ window.map = (function () {
       // вставляем маркеры с Предложениями жилья на карту
       mapPins.appendChild(this.createPins(window.data.getOffers()));
 
+      // возвращаем созданные метки
+      return document.querySelectorAll('.map__pin:not(.map__pin--main)');
     },
 
   };

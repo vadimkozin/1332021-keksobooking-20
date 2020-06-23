@@ -9,17 +9,14 @@ window.form = (function () {
   var title = document.querySelector('#title');
   var timein = document.querySelector('#timein');
   var timeout = document.querySelector('#timeout');
-  var addressField = document.querySelector('#address');
   var adForm = document.querySelector('.ad-form');
-  var adFormSubmit = adForm.querySelector('button.ad-form__submit');
-  var adFormReset = adForm.querySelector('button.ad-form__reset');
 
   adForm.addEventListener('invalid', onInvalidAdForm, true);
   adForm.addEventListener('input', onInputAdForm, false);
+  adForm.addEventListener('submit', onSubmitAdForm, false);
+  adForm.addEventListener('reset', onResetAdForm, false);
   roomNumber.addEventListener('change', onChangeRoomsGuests, false);
   guestsNumber.addEventListener('change', onChangeRoomsGuests, false);
-  adFormSubmit.addEventListener('click', onSubmitAdForm, false);
-  adFormReset.addEventListener('click', onResetAdForm, false);
 
   typeHousing.addEventListener('change', onChangeTypeHousing, false);
 
@@ -87,17 +84,25 @@ window.form = (function () {
 
     var valid = adForm.checkValidity();
     if (valid) {
-      adForm.submit();
+      // adForm.submit();
+      window.backend.save(new FormData(adForm), onFormSaved, onFormError);
+    }
+    function onFormSaved() {
+      onResetAdForm();
+      window.main.start();
+      window.message.showSuccess();
+    }
+    function onFormError(message) {
+      window.message.showError(message);
     }
   }
 
   function onResetAdForm() {
-    var savedAddress = addressField.value;
 
     adForm.reset();
 
     setTimeout(function () {
-      addressField.value = savedAddress;
+      synchronizeTypeWithPrice(typeHousing.value, true);
     }, 100);
 
   }
@@ -185,5 +190,53 @@ window.form = (function () {
     }
 
   }
+
+  // поле адреса в форме
+  var address = {
+
+    element: document.querySelector('#address'),
+
+    // вычисление координат в виде {x,y} в зависимости от расположения маркера и состояния
+    getCoord: function (marker, markerState) {
+      var width = 0;
+      var height = 0;
+
+      switch (markerState) {
+        case 'active':
+          height = window.cfg.mark.MAIN_ACTIVE_HEIGHT;
+          width = window.cfg.mark.MAIN_ACTIVE_WIDTH;
+          break;
+        case 'inactive':
+          height = window.cfg.mark.MAIN_INACTIVE_HEIGHT;
+          width = window.cfg.mark.MAIN_INACTIVE_WIDTH;
+          break;
+        default:
+          width = window.cfg.mark.WIDTH;
+          height = window.cfg.mark.HEIGHT;
+          break;
+      }
+
+      var x = Math.round(parseInt(marker.style.left, 10) + width / 2);
+      var y = Math.round(parseInt(marker.style.top, 10) + height);
+
+      return {
+        x: x,
+        y: y
+      };
+
+    },
+
+    // заполнение поля адреса
+    setAddress: function (marker, markerState) {
+      var coord = this.getCoord(marker, markerState);
+      this.element.value = coord.x + ',' + coord.y;
+    },
+
+  };
+
+  return {
+    setAddress: address.setAddress.bind(address),
+  };
+
 
 })();

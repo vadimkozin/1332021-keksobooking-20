@@ -2,27 +2,6 @@
 // Данные
 
 window.data = (function () {
-  // вспомогательные функции
-  var func = {
-
-    count: 1,
-
-    getAvatar: function (max) {
-      if (this.count > max) {
-        this.count = 1;
-      }
-      return 'img/avatars/user' + this.addZeros(this.count++) + '.png';
-    },
-
-    addZeros: function (n, needLength) {
-      needLength = needLength || 2;
-      n = String(n);
-      while (n.length < needLength) {
-        n = '0' + n;
-      }
-      return n;
-    },
-  };
 
   var data = {
 
@@ -36,8 +15,9 @@ window.data = (function () {
       return this.offers_;
     },
 
+    // 'частный' метод, вызывается при загрузке кода
     loadOffers_: function () {
-      this.offers_ = this.createOffers(window.cfg.OFFERS_MAX);
+      this.createOffers(window.cfg.OFFERS_MAX);
     },
 
     // возвращает Предложение по его id
@@ -54,45 +34,24 @@ window.data = (function () {
 
     // создание массива 'Предложений'
     createOffers: function (max) {
-      var array = [];
+      var that = this;
+      var url = window.cfg.URL_DATA;
 
-      for (var i = 0; i < max; i++) {
-        array.push(this.createOffer());
+      window.backend.load(url, onLoad, onError);
+
+      function onLoad(response) {
+        // нам нужно max значений из полученных данных
+        var indexes = window.random.getSetValues(max, response.length);
+
+        for (var i = 0; i < max; i++) {
+          that.offers_[i] = response[indexes[i]];
+          that.offers_[i]['id'] = i; // дополняем каждое Предложение уникальным id
+        }
+      }
+      function onError(message) {
+        window.util.showMessage(message, false);
       }
 
-      return array;
-    },
-
-    // уникальный идентификатор 'Предложения'
-    id: 0,
-
-    // создание одного 'Предложения' жилья
-    createOffer: function () {
-      var obj = {};
-
-      obj.id = this.id++;
-
-      obj.author = {};
-      obj.author.avatar = func.getAvatar(window.cfg.OFFERS_MAX);
-
-      obj.offer = {};
-      obj.offer.title = window.random.getItemFromArray(window.cfg.TITLES);
-      obj.offer.address = window.random.getItemFromArray(window.random.createArrayPairs(window.cfg.address));
-      obj.offer.price = window.random.getItemFromArray(window.cfg.PRICES);
-      obj.offer.type = window.random.getItemFromArray(Object.keys(window.cfg.types));
-      obj.offer.rooms = window.random.getItemFromArray(window.cfg.ROOMS);
-      obj.offer.guests = window.random.getItemFromArray(window.cfg.GUESTS);
-      obj.offer.checkin = window.random.getItemFromArray(window.cfg.CHECKIN);
-      obj.offer.checkout = window.random.getItemFromArray(window.cfg.CHECKOUT);
-      obj.offer.features = window.random.getArrayFromArray(window.cfg.FEATURES);
-      obj.offer.description = window.random.getItemFromArray(window.cfg.DESCRIPTIONS);
-      obj.offer.photos = window.random.getArrayFromArray(window.cfg.PHOTOS);
-
-      obj.location = {};
-      obj.location.x = window.random.getNumberFromRange(0, this.mapSize.width); // ТЗ: случайное число, координата x метки на карте. Значение ограничено размерами блока, в котором перетаскивается метка.
-      obj.location.y = window.random.getNumberFromRange(130, 630); // ТЗ: случайное число, координата y метки на карте от 130 до 630
-
-      return obj;
     },
 
   };

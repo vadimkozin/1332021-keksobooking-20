@@ -66,8 +66,8 @@ window.card = (function () {
           img.src = offer.offer.photos[i];
           element.after(img);
         }
-        element.remove();
       }
+      element.remove();
     },
 
     // подготовка карточки для отображения

@@ -3,6 +3,7 @@
 
 window.cfg = (function () {
   return {
+    URL_DATA: 'https://javascript.pages.academy/keksobooking/data',
     valid: {
       TITLE_LENGTH_MIN: 30,
       TITLE_LENGTH_MAX: 100,

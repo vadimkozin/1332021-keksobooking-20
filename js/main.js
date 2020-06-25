@@ -1,110 +1,30 @@
 'use strict';
 // главный модуль
 
-(function () {
-  // состояние интерактивных элементов: карты и формы
-  var state = {
-    map: document.querySelector('.map'),
-    adForm: document.querySelector('.ad-form'),
-    adFormFieldsets: document.querySelectorAll('.ad-form fieldset'),
-    filterForm: document.querySelector('.map__filters'),
-    filterFormSelect: document.querySelectorAll('.map__filters select'),
-    filterFormFieldsets: document.querySelectorAll('.map__filters fieldset'),
+window.main = (function () {
 
-    setDisabled: function (elements) {
-      for (var i = 0; i < elements.length; i++) {
-        elements[i].setAttribute('disabled', '');
-      }
-    },
-
-    setEnabled: function (elements) {
-      for (var i = 0; i < elements.length; i++) {
-        elements[i].removeAttribute('disabled');
-      }
-    },
-
-    // установка НЕ активного состояния
-    setInactiveState: function () {
-      // ТЗ: Блок с картой .map содержит класс map--faded
-      this.map.classList.add('map--faded');
-
-      // ТЗ: Форма заполнения информации об объявлении .ad-form содержит класс .ad-form--disabled
-      this.adForm.classList.add('ad-form--disabled');
-
-      // ТЗ: Все <input> и <select> формы .ad-form заблокированы с помощью атрибута disabled, добавленного на них или на их родительские блоки fieldset
-      this.setDisabled(this.adFormFieldsets);
-
-      // ТЗ: Форма с фильтрами .map__filters заблокирована так же, как и форма .ad-form
-      this.setDisabled(this.filterFormSelect);
-      this.setDisabled(this.filterFormFieldsets);
-    },
-
-    // установка активного состояния
-    setActiveState: function () {
-      // У блока с картой .map убираем класс map--faded
-      this.map.classList.remove('map--faded');
-
-      // У формы заполнения информации об объявлении .ad-form убираем класс .ad-form--disabled
-      this.adForm.classList.remove('ad-form--disabled');
-
-      // Разблокируем <fieldset> формы .ad-form
-      this.setEnabled(this.adFormFieldsets);
-
-      // Разблокируем форму с фильтрами .map__filters
-      this.setEnabled(this.filterFormSelect);
-      this.setEnabled(this.filterFormFieldsets);
-    },
-
-  };
-
-  // адрес
-  var address = {
-
-    element: document.querySelector('#address'),
-
-    // вычисление координат в виде {x,y} в зависимости от расположения маркера и состояния
-    getCoord: function (marker, markerState) {
-      var width = 0;
-      var height = 0;
-
-      switch (markerState) {
-        case 'main-active':
-          height = window.cfg.mark.MAIN_ACTIVE_HEIGHT;
-          width = window.cfg.mark.MAIN_ACTIVE_WIDTH;
-          break;
-        case 'main-inactive':
-          height = window.cfg.mark.MAIN_INACTIVE_HEIGHT;
-          width = window.cfg.mark.MAIN_INACTIVE_WIDTH;
-          break;
-        default:
-          width = window.cfg.mark.WIDTH;
-          height = window.cfg.mark.HEIGHT;
-          break;
-      }
-
-      var x = Math.round(parseInt(marker.style.left, 10) + width / 2);
-      var y = Math.round(parseInt(marker.style.top, 10) + height);
-
-      return {
-        x: x,
-        y: y
-      };
-
-    },
-
-    // заполнение поля адреса
-    setAddress: function (marker, markerState) {
-      var coord = this.getCoord(marker, markerState);
-      this.element.value = coord.x + ',' + coord.y;
-    },
-
-  };
+  function getLocation(element) {
+    return {
+      left: element.style.left,
+      top: element.style.top,
+    };
+  }
 
   // главная метка
   var mainPin = {
 
     // ссылка на главную метку
     element: document.querySelector('.map__pin--main'),
+
+    // местоположение главной метки по умолчанию
+    location: null,
+
+    setLocationDefault: function () {
+      if (this.location) {
+        this.element.style.left = this.location.left;
+        this.element.style.top = this.location.top;
+      }
+    },
 
     // установка обработчиков на главную метку
     installHandle: function () {
@@ -128,39 +48,35 @@
     window.util.isEnterEvent(evt, goActiveState);
   }
 
-  function goActiveState() {
-    // перевод элементов в активное состояние
-    state.setActiveState();
-    // заполнение поля адреса в активном состоянии
-    address.setAddress(mainPin.element, 'main-active');
-    // отрисовка похожих объявлений-меток на карте
-    window.map.showPins();
-    // установка обработчиков на метки
-    installHandlersOnMapPins();
-    // снятие обработчиков с главной метки
-    mainPin.removeHandle();
-  }
-
-  // установка обработчиков на метки
-  function installHandlersOnMapPins() {
-    var mapPins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
+  var pins = (function () {
+    var mapPins = [];
     var className = 'map__pin--active';
 
-    for (var i = 0; i < mapPins.length; i++) {
-      mapPins[i].addEventListener('click', onClickMapPin);
+    function installHandlersOnMapPins(pinElements) {
+      mapPins = pinElements;
+      for (var i = 0; i < mapPins.length; i++) {
+        mapPins[i].addEventListener('click', onClickMapPin);
+      }
+    }
+
+    function removeHandlersOnMapPins() {
+      for (var i = 0; i < mapPins.length; i++) {
+        mapPins[i].removeEventListener('click', onClickMapPin);
+        mapPins[i].remove();
+      }
     }
 
     function onClickMapPin(evt) {
 
-      var parrent = evt.target.closest('button');
-      var offerId = Number(parrent.dataset.offerId);
+      var parent = evt.target.closest('button');
+      var offerId = Number(parent.dataset.offerId);
       var offer = window.data.getOfferById(offerId);
 
       window.card.close();
 
-      window.card.open(offer, parrent, deselectAllPins);
+      window.card.open(offer, parent, deselectAllPins);
 
-      parrent.classList.add(className);
+      parent.classList.add(className);
 
     }
 
@@ -170,29 +86,70 @@
       }
     }
 
+    return {
+      installHandlersOnMapPins: installHandlersOnMapPins,
+      removeHandlersOnMapPins: removeHandlersOnMapPins,
+    };
+
+  })();
+
+  function goActiveState() {
+    // перевод элементов в активное состояние
+    window.state.setActiveState();
+    // заполнение поля адреса в активном состоянии
+    window.form.setAddress(mainPin.element, 'active');
+    // отрисовка похожих объявлений-меток на карте
+    var mapPins = window.map.showPins();
+    // установка обработчиков на метки
+    pins.installHandlersOnMapPins(mapPins);
+    // снятие обработчиков с главной метки
+    mainPin.removeHandle();
+    // запоминаем положение главной метки
+    if (!mainPin.location) {
+      mainPin.location = getLocation(mainPin.element);
+    }
   }
 
-  // ТЗ: сначала НЕ активное состояние
-  state.setInactiveState();
+  function goInActiveState() {
+    // главная метка
+    mainPin.setLocationDefault();
 
-  // установка обработчиков на главную метку
-  mainPin.installHandle();
+    // ТЗ: сначала НЕ активное состояние
+    window.state.setInactiveState();
 
-  // ТЗ: Поле адреса должно быть заполнено всегда, в том числе сразу после открытия страницы (в неактивном состоянии).
-  address.setAddress(mainPin.element, 'main-inactive');
+    // ТЗ: Поле адреса должно быть заполнено всегда, в том числе сразу после открытия страницы (в неактивном состоянии).
+    window.form.setAddress(mainPin.element, 'inactive');
+
+    // снятие обработчиков с меток
+    pins.removeHandlersOnMapPins();
+
+    // установка обработчиков на главную метку
+    mainPin.installHandle();
+
+    // закрытие карточки, если открыта
+    window.card.close();
+  }
 
   // Подготовка главной метки к перетаскиванию
   var options = {
     size: window.util.getElementSize(document.querySelector('.map__pins')), // размер {width, hieght} поля перемещения метки
-    zIndex: 100, // z-index на время перемещения
     objHeight: window.cfg.mark.MAIN_ACTIVE_HEIGHT, // высота передвигаемого объекта
     objWidth: window.cfg.mark.MAIN_ACTIVE_WIDTH, // ширина передвигаемого объекта
   };
 
   var onMainPinMove = function () {
-    address.setAddress(mainPin.element, 'main-active');
+    window.form.setAddress(mainPin.element, 'active');
   };
 
-  window.move.init(mainPin.element, mainPin.element, options, goActiveState, onMainPinMove);
+  function start() {
+    goInActiveState();
+    window.move.init(mainPin.element, mainPin.element, options, goActiveState, onMainPinMove);
+  }
+
+  start();
+
+  return {
+    start: start,
+  };
 
 })();

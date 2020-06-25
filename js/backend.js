@@ -9,7 +9,6 @@ window.backend = (function () {
   var ERR_TIMEOUT = 'Запрос не успел выполниться за ' + TIMEOUT_IN_MS + 'мс';
   var URL_SAVE = 'https://javascript.pages.academy/keksobooking';
 
-
   function load(url, onLoad, onError) {
 
     var xhr = new XMLHttpRequest();

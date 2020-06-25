@@ -4,23 +4,23 @@ window.move = (function () {
    * Инициализация передвижения объекта
    * @param {HTMLElement} movableObject - передвигаемый объект
    * @param {HTMLElement} handle - ручка для перетаскивания, элемент внутри movableObject
-   * @param {object} options - опции:
+   * @param {object} options - опции: *
+   * @param {function} cbBegin - вызывается при первом 'прикосновении' к объекту
+   * @param {function} cbMoving - вызывается при каждом перемещении объекта
+   *    options:
    *    @param {boolean} isReturnAsItWas - вернуть как было? после перетаскивания
    *    @param {number} zIndex - z-index объекта на время передвижения?
    *    @param {object} size - размер площадки для перетаскивания (size:{width, hight})
    *    @param {number} objHeight - высота передвигаемого объекта,
    *    @param {number} objWidth - ширина передвигаемого объекта,
-   *
-   * @param {function} cbBegin - вызывается при первом 'прикосновении' к объекту
-   * @param {function} cbMoving - вызывается при каждом перемещении объекта
    */
-
   function init(movableObject, handle, options, cbBegin, cbMoving) {
 
     // options - объект, его лучше склонировать чтобы случайно не испортить
     var opts = JSON.parse(JSON.stringify(options));
     opts.isReturnAsItWas = (opts.isReturnAsItWas === undefined) ? false : opts.isReturnAsItWas;
     opts.zIndex = opts.zIndex || 100;
+
     // Если высота/ширина объекта перетаскивания заданы, то беруться они, иначе вычисляются
     opts.objHeight = opts.objHeight || movableObject.offsetHeight;
     opts.objWidth = opts.objWidth || movableObject.offsetWidth;
@@ -57,7 +57,14 @@ window.move = (function () {
     // изначальный z-index передвигаемого объекта
     var zIndexSave = style.zIndex;
 
-    handle.addEventListener('mousedown', function (evt) {
+    // handle.addEventListener('mousedown', onMouseDown);
+
+    // для предохранения от повторного вызова init() регестрирую событие как 'onmousedown'
+    // чтобы слушатель события 'mousedown' был только один
+    handle.onmousedown = onMouseDown;
+
+    function onMouseDown(evt) {
+
       evt.preventDefault();
 
       // применение функции один раз
@@ -75,7 +82,7 @@ window.move = (function () {
 
       // var dragged = false;
 
-      var onMouseMove = function (moveEvt) {
+      function onMouseMove(moveEvt) {
         moveEvt.preventDefault();
 
         // dragged = true;
@@ -105,9 +112,9 @@ window.move = (function () {
         if (cbMoving) {
           cbMoving();
         }
-      };
+      }
 
-      var onMouseUp = function (upEvt) {
+      function onMouseUp(upEvt) {
         upEvt.preventDefault();
 
         document.removeEventListener('mousemove', onMouseMove);
@@ -128,15 +135,15 @@ window.move = (function () {
 
         movableObject.style.zIndex = zIndexSave;
 
-      };
+      }
 
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseup', onMouseUp);
-    });
+    }
   }
 
   return {
-    init: init
+    init: init,
   };
 
 })();

@@ -29,6 +29,25 @@ window.random = (function () {
       return result;
     },
 
+    // возвращает часть массива размером size
+    getPartArray: function (array, size) {
+      var result = [];
+      size = (array.length > size) ? size : array.length;
+
+      do {
+        var index = this.getIndex(array);
+
+        if (result.includes(array[index])) {
+          continue;
+        }
+
+        result.push(array[index]);
+
+      } while (result.length < size);
+
+      return result;
+    },
+
     getNumberFromRange: function (from, to) {
       var range = Number(to) - Number(from) + 1;
       return from + Math.floor(Math.random() * range);

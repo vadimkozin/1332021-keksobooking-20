@@ -48,6 +48,51 @@ window.main = (function () {
     window.util.isEnterEvent(evt, goActiveState);
   }
 
+  var pins = (function () {
+    var mapPins = [];
+    var className = 'map__pin--active';
+
+    function installHandlersOnMapPins(pinElements) {
+      mapPins = pinElements;
+      for (var i = 0; i < mapPins.length; i++) {
+        mapPins[i].addEventListener('click', onClickMapPin);
+      }
+    }
+
+    function removeHandlersOnMapPins() {
+      for (var i = 0; i < mapPins.length; i++) {
+        mapPins[i].removeEventListener('click', onClickMapPin);
+        mapPins[i].remove();
+      }
+    }
+
+    function onClickMapPin(evt) {
+
+      var parent = evt.target.closest('button');
+      var offerId = Number(parent.dataset.offerId);
+      var offer = window.data.getOfferById(offerId);
+
+      window.card.close();
+
+      window.card.open(offer, parent, deselectAllPins);
+
+      parent.classList.add(className);
+
+    }
+
+    function deselectAllPins() {
+      for (var j = 0; j < mapPins.length; j++) {
+        mapPins[j].classList.remove(className);
+      }
+    }
+
+    return {
+      installHandlersOnMapPins: installHandlersOnMapPins,
+      removeHandlersOnMapPins: removeHandlersOnMapPins,
+    };
+
+  })();
+
   function goActiveState() {
     // перевод элементов в активное состояние
     window.state.setActiveState();
@@ -56,7 +101,7 @@ window.main = (function () {
     // отрисовка похожих объявлений-меток на карте
     var mapPins = window.map.showPins();
     // установка обработчиков на метки
-    window.pin.installHandlersOnMapPins(mapPins);
+    pins.installHandlersOnMapPins(mapPins);
     // снятие обработчиков с главной метки
     mainPin.removeHandle();
     // запоминаем положение главной метки
@@ -76,7 +121,7 @@ window.main = (function () {
     window.form.setAddress(mainPin.element, 'inactive');
 
     // снятие обработчиков с меток
-    window.pin.removeHandlersOnMapPins();
+    pins.removeHandlersOnMapPins();
 
     // установка обработчиков на главную метку
     mainPin.installHandle();
@@ -105,6 +150,7 @@ window.main = (function () {
 
   return {
     start: start,
+    installHandlersOnMapPins: pins.installHandlersOnMapPins.bind(pins),
   };
 
 })();

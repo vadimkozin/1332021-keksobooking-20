@@ -7,7 +7,6 @@ window.backend = (function () {
   var TIMEOUT_IN_MS = 10 * 1000; // 10s
   var ERR_CONNECT = 'Произошла ошибка соединения';
   var ERR_TIMEOUT = 'Запрос не успел выполниться за ' + TIMEOUT_IN_MS + 'мс';
-  var URL_SAVE = 'https://javascript.pages.academy/keksobooking';
 
   function load(url, onLoad, onError) {
 
@@ -53,7 +52,7 @@ window.backend = (function () {
       onError(ERR_TIMEOUT);
     });
 
-    xhr.open('POST', URL_SAVE);
+    xhr.open('POST', window.cfg.url.SAVE);
     xhr.send(data);
 
   }

@@ -3,7 +3,10 @@
 
 window.cfg = (function () {
   return {
-    URL_DATA: 'https://javascript.pages.academy/keksobooking/data',
+    url: {
+      DATA: 'https://javascript.pages.academy/keksobooking/data',
+      SAVE: 'https://javascript.pages.academy/keksobooking',
+    },
     valid: {
       TITLE_LENGTH_MIN: 30,
       TITLE_LENGTH_MAX: 100,
@@ -16,7 +19,7 @@ window.cfg = (function () {
       MAIN_INACTIVE_WIDTH: 65, // ширина главного маркера в НЕ активном состоянии
       MAIN_INACTIVE_HEIGHT: 65 // высота ..
     },
-    OFFERS_MAX: 8,
+    OFFERS_MAX: 5,
     TITLES: ['Каменный дом 250м', 'Дом из бруса', 'Аппартаменты ждут вас', 'Скамейка', 'Остров', 'Дом + баня', 'Срочно сдаю жильё!', 'Экономичный вариант', 'Шалаш!', 'Коттедж на двоих'],
     address: {
       FROM_X: 10, // координата начала по X

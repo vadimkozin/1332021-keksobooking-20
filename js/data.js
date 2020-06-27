@@ -11,13 +11,14 @@ window.data = (function () {
     // Предложения:
     offers_: [],
 
+    // получить Предложения
     getOffers: function () {
       return this.offers_;
     },
 
     // 'частный' метод, вызывается при загрузке кода
     loadOffers_: function () {
-      this.createOffers(window.cfg.OFFERS_MAX);
+      this.readOffers();
     },
 
     // возвращает Предложение по его id
@@ -32,28 +33,41 @@ window.data = (function () {
       return this.offers_[0];
     },
 
-    // создание массива 'Предложений'
-    createOffers: function (max) {
+    // чтение всех 'Предложений'
+    readOffers: function () {
       var that = this;
-      var url = window.cfg.URL_DATA;
+      var url = window.cfg.url.DATA;
 
       window.backend.load(url, onLoad, onError);
 
       function onLoad(response) {
-        // нам нужно max значений из полученных данных
-        var indexes = window.random.getSetValues(max, response.length);
-
-        for (var i = 0; i < max; i++) {
-          that.offers_[i] = response[indexes[i]];
-          that.offers_[i]['id'] = i; // дополняем каждое Предложение уникальным id
-        }
+        response.forEach(function (it, index) {
+          that.offers_[index] = it;
+          that.offers_[index]['id'] = index; // дополняем каждое Предложение уникальным id
+        });
       }
+
       function onError(message) {
         window.util.showMessage(message, false);
       }
-
     },
 
+    // получить Предложения по критерию
+    getOffersByCrit: function (options) {
+      options = options || {};
+      options.type = options.type || 'any'; // any, palace, flat, house, bungalo
+      options.max = options.max || window.cfg.OFFERS_MAX;
+
+      // 1 критерий - тип жилья
+      // 2 критерий - не более чем options.max
+      var array = (options.type === 'any')
+        ? window.random.getPartArray(this.offers_, options.max)
+        : this.offers_.filter(function (offer) {
+          return offer.offer.type === options.type;
+        }).slice(0, options.max);
+
+      return array;
+    }
   };
 
   data.loadOffers_();
@@ -61,6 +75,7 @@ window.data = (function () {
   return {
     getOffers: data.getOffers.bind(data),
     getOfferById: data.getOfferById.bind(data),
+    getOffersByCrit: data.getOffersByCrit.bind(data),
   };
 
 })();

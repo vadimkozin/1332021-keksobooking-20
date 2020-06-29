@@ -16,11 +16,6 @@ window.data = (function () {
       return this.offers_;
     },
 
-    // 'частный' метод, вызывается при загрузке кода
-    loadOffers_: function () {
-      this.readOffers();
-    },
-
     // возвращает Предложение по его id
     getOfferById: function (id) {
 
@@ -34,7 +29,7 @@ window.data = (function () {
     },
 
     // чтение всех 'Предложений'
-    readOffers: function () {
+    readOffers: function (callback) {
       var that = this;
       var url = window.cfg.url.DATA;
 
@@ -45,6 +40,9 @@ window.data = (function () {
           that.offers_[index] = it;
           that.offers_[index]['id'] = index; // дополняем каждое Предложение уникальным id
         });
+        if (typeof callback === 'function') {
+          callback();
+        }
       }
 
       function onError(message) {
@@ -70,9 +68,9 @@ window.data = (function () {
     }
   };
 
-  data.loadOffers_();
 
   return {
+    readOffers: data.readOffers.bind(data),
     getOffers: data.getOffers.bind(data),
     getOfferById: data.getOfferById.bind(data),
     getOffersByCrit: data.getOffersByCrit.bind(data),

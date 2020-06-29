@@ -49,20 +49,28 @@ window.main = (function () {
   }
 
   function goActiveState() {
-    // перевод элементов в активное состояние
-    window.state.setActiveState();
-    // заполнение поля адреса в активном состоянии
-    window.form.setAddress(mainPin.element, 'active');
-    // отрисовка похожих объявлений-меток на карте
-    var mapPins = window.map.showPins();
-    // установка обработчиков на метки
-    window.pin.installHandlersOnMapPins(mapPins);
-    // снятие обработчиков с главной метки
-    mainPin.removeHandle();
-    // запоминаем положение главной метки
-    if (!mainPin.location) {
-      mainPin.location = getLocation(mainPin.element);
+
+    window.data.readOffers(onDataRead);
+
+    function onDataRead() {
+      // перевод элементов в активное состояние
+      window.state.setActiveState();
+      // заполнение поля адреса в активном состоянии
+      window.form.setAddress(mainPin.element, 'active');
+      // отрисовка похожих объявлений-меток на карте
+      var mapPins = window.map.showPins();
+      // установка обработчиков на метки
+      window.pin.installHandlersOnMapPins(mapPins);
+      // снятие обработчиков с главной метки
+      mainPin.removeHandle();
+      // запоминаем положение главной метки
+      if (!mainPin.location) {
+        mainPin.location = getLocation(mainPin.element);
+      }
+      // установка позиции элемента '.map'
+      // setMapBackgoundPosition();
     }
+
   }
 
   function goInActiveState() {
@@ -83,7 +91,16 @@ window.main = (function () {
 
     // закрытие карточки, если открыта
     window.card.close();
+
   }
+
+  // function setMapBackgoundPosition() {
+  //   var map = document.querySelector('.map');
+  //   if (map) {
+  //     map.style.backgroundPositionX = 0;
+  //     map.style.backgroundPositionY = 0;
+  //   }
+  // }
 
   // Подготовка главной метки к перетаскиванию
   var options = {

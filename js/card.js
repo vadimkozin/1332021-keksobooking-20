@@ -75,6 +75,9 @@ window.card = (function () {
 
       var element = template.cloneNode(true);
 
+      // маркировка карточки. Чтобы была связь: offer.id --> mapPin('data-offer-id') --> card ('data-offer-id')
+      element.setAttribute('data-offer-id', offer.id);
+
       // ТЗ: Выведите заголовок объявления offer.title в заголовок .popup__title.
       element.querySelector('.popup__title').textContent = offer.offer.title;
 
@@ -112,9 +115,7 @@ window.card = (function () {
 
       // обработчик на кнопку закрытия карточки
       this.cardClose = element.querySelector('.popup__close');
-      this.cardClose.addEventListener('click', this.onClickCardClose.bind(this));
-      this.cardClose.addEventListener('keydown', this.onKeydownCardClose.bind(this));
-      element.addEventListener('keydown', this.onKeydownCard.bind(this));
+      this.cardClose.addEventListener('click', this.onCardCloseClick.bind(this));
 
       return element;
     },
@@ -130,43 +131,43 @@ window.card = (function () {
 
     // функция обратного вызова, применяется при закрытии карточки
     // поле заполняется извне этого объекта в момент создания карточки
-    cbOnCloseCard: undefined,
+    cbCardClose: undefined,
 
-    // обработчик на кнопку закрытия по клику мышкой
-    onClickCardClose: function () {
+    // обработчик на кнопку закрытия по клику
+    onCardCloseClick: function () {
       this.close();
-    },
-
-    // обработчик на кнопку закрытия по нажатию клавиши Enter
-    onKeydownCardClose: function (evt) {
-      window.util.isEnterEvent(evt, this.close.bind(this));
-    },
-
-    // обработчик нажания клавиши Escape при фокусе на карточке
-    onKeydownCard: function (evt) {
-      window.util.isEscEvent(evt, this.close.bind(this));
     },
 
     // закрытие карточки
     close: function () {
 
       if (this.cardClose) {
+        this.cardClose.removeEventListener('click', this.onCardCloseClick.bind(this));
         this.cardClose.closest('.popup').remove();
-        this.cardClose.removeEventListener('click', this.onClickCardClose);
       }
 
-      if (this.cbOnCloseCard && typeof this.cbOnCloseCard === 'function') {
-        this.cbOnCloseCard();
+      if (typeof this.cbCardClose === 'function') {
+        this.cbCardClose();
       }
     },
 
     // открытие карточки (добавление в DOM c данными offer перед элементом where.)
-    open: function (offer, where, cbOnCloseCard) {
+    open: function (offer, where, cbCardClose) {
       where.before(this.createFragmentCard(offer));
-      this.cbOnCloseCard = cbOnCloseCard;
+      this.cbCardClose = cbCardClose;
     },
 
   };
+
+  // если карточка открыта, то по нажатию ESC - должна закрыться
+  document.addEventListener('keydown', function (evt) {
+    window.util.isEscEvent(evt, function () {
+      var popup = document.querySelector('.popup');
+      if (popup) {
+        popup.remove();
+      }
+    });
+  });
 
   return {
     open: card.open.bind(card),

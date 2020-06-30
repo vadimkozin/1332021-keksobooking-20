@@ -17,16 +17,26 @@ window.map = (function () {
     },
 
     // отображение Предложений-меток на карте
-    showPins: function () {
+    showPins: function (options) {
 
-      // ТЗ: Отрисуйте сгенерированные DOM-элементы в блок .map__pins. Для вставки элементов используйте DocumentFragment.
+      // ТЗ: Отрисуйте сгенерированные DOM-элементы в блок .map__pins
       var mapPins = document.querySelector('.map__pins');
 
-      // вставляем маркеры с Предложениями жилья на карту
-      mapPins.appendChild(this.createPins(window.data.getOffers()));
+      // селектор для выборки всех меток кроме главной
+      var pinSelector = '.map__pin:not(.map__pin--main)';
+
+      // удаляем существующие метки (если есть)
+      document.querySelectorAll(pinSelector).forEach(function (it) {
+        it.remove();
+      });
+
+      // вставляем метки с Предложениями жилья на карту
+      // mapPins.appendChild(this.createPins(window.data.getOffers()));
+      mapPins.appendChild(this.createPins(window.data.getOffersByCrit(options)));
 
       // возвращаем созданные метки
-      return document.querySelectorAll('.map__pin:not(.map__pin--main)');
+      return document.querySelectorAll(pinSelector);
+
     },
 
   };

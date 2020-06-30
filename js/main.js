@@ -48,66 +48,29 @@ window.main = (function () {
     window.util.isEnterEvent(evt, goActiveState);
   }
 
-  var pins = (function () {
-    var mapPins = [];
-    var className = 'map__pin--active';
-
-    function installHandlersOnMapPins(pinElements) {
-      mapPins = pinElements;
-      for (var i = 0; i < mapPins.length; i++) {
-        mapPins[i].addEventListener('click', onClickMapPin);
-      }
-    }
-
-    function removeHandlersOnMapPins() {
-      for (var i = 0; i < mapPins.length; i++) {
-        mapPins[i].removeEventListener('click', onClickMapPin);
-        mapPins[i].remove();
-      }
-    }
-
-    function onClickMapPin(evt) {
-
-      var parent = evt.target.closest('button');
-      var offerId = Number(parent.dataset.offerId);
-      var offer = window.data.getOfferById(offerId);
-
-      window.card.close();
-
-      window.card.open(offer, parent, deselectAllPins);
-
-      parent.classList.add(className);
-
-    }
-
-    function deselectAllPins() {
-      for (var j = 0; j < mapPins.length; j++) {
-        mapPins[j].classList.remove(className);
-      }
-    }
-
-    return {
-      installHandlersOnMapPins: installHandlersOnMapPins,
-      removeHandlersOnMapPins: removeHandlersOnMapPins,
-    };
-
-  })();
-
   function goActiveState() {
-    // перевод элементов в активное состояние
-    window.state.setActiveState();
-    // заполнение поля адреса в активном состоянии
-    window.form.setAddress(mainPin.element, 'active');
-    // отрисовка похожих объявлений-меток на карте
-    var mapPins = window.map.showPins();
-    // установка обработчиков на метки
-    pins.installHandlersOnMapPins(mapPins);
-    // снятие обработчиков с главной метки
-    mainPin.removeHandle();
-    // запоминаем положение главной метки
-    if (!mainPin.location) {
-      mainPin.location = getLocation(mainPin.element);
+
+    window.data.readOffers(onDataRead);
+
+    function onDataRead() {
+      // перевод элементов в активное состояние
+      window.state.setActiveState();
+      // заполнение поля адреса в активном состоянии
+      window.form.setAddress(mainPin.element, 'active');
+      // отрисовка похожих объявлений-меток на карте
+      var mapPins = window.map.showPins();
+      // установка обработчиков на метки
+      window.pin.installHandlersOnMapPins(mapPins);
+      // снятие обработчиков с главной метки
+      mainPin.removeHandle();
+      // запоминаем положение главной метки
+      if (!mainPin.location) {
+        mainPin.location = getLocation(mainPin.element);
+      }
+      // установка позиции элемента '.map'
+      // setMapBackgoundPosition();
     }
+
   }
 
   function goInActiveState() {
@@ -121,14 +84,23 @@ window.main = (function () {
     window.form.setAddress(mainPin.element, 'inactive');
 
     // снятие обработчиков с меток
-    pins.removeHandlersOnMapPins();
+    window.pin.removeHandlersOnMapPins();
 
     // установка обработчиков на главную метку
     mainPin.installHandle();
 
     // закрытие карточки, если открыта
     window.card.close();
+
   }
+
+  // function setMapBackgoundPosition() {
+  //   var map = document.querySelector('.map');
+  //   if (map) {
+  //     map.style.backgroundPositionX = 0;
+  //     map.style.backgroundPositionY = 0;
+  //   }
+  // }
 
   // Подготовка главной метки к перетаскиванию
   var options = {

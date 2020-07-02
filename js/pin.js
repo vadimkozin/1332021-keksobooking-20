@@ -47,6 +47,10 @@ window.pin = (function () {
     }
 
     function removeHandlersOnMapPins() {
+      removePins();
+    }
+
+    function removePins() {
       for (var i = 0; i < mapPins.length; i++) {
         mapPins[i].removeEventListener('click', onClickMapPin);
         mapPins[i].remove();
@@ -76,6 +80,7 @@ window.pin = (function () {
     return {
       installHandlersOnMapPins: installHandlersOnMapPins,
       removeHandlersOnMapPins: removeHandlersOnMapPins,
+      removePins: removePins,
     };
 
   })();
@@ -84,6 +89,7 @@ window.pin = (function () {
     createPin: createPin,
     installHandlersOnMapPins: pins.installHandlersOnMapPins.bind(pins),
     removeHandlersOnMapPins: pins.removeHandlersOnMapPins.bind(pins),
+    removePins: pins.removePins.bind(pins),
   };
 
 })();

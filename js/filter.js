@@ -7,6 +7,8 @@ window.filter = (function () {
   var roomsElement = document.querySelector('#housing-rooms');
   var guestsElement = document.querySelector('#housing-guests');
   var featuresElement = document.querySelector('#housing-features');
+  var formElement = document.querySelector('.map__filters');
+
 
   var featuresSet = {
     wifi: document.querySelector('#filter-wifi'),
@@ -38,6 +40,7 @@ window.filter = (function () {
   roomsElement.addEventListener('change', window.debounce(onRoomsChange, roomsElement));
   guestsElement.addEventListener('change', window.debounce(onGuestsChange, guestsElement));
   featuresElement.addEventListener('change', window.debounce(onFeaturesChange, featuresElement));
+  formElement.addEventListener('reset', window.debounce(onFormReset, formElement));
 
   function onTypeChange(evt) {
     filter.type = evt.target.value;
@@ -60,6 +63,9 @@ window.filter = (function () {
     features[key] = (featuresSet[key].checked) ? true : false;
     filter.features = getFeatures(features);
     updateMapPins();
+  }
+  function onFormReset() {
+    formElement.reset();
   }
 
   // возвращает список характеристик в виде строки: 'wifi,parking,elevator'
@@ -143,6 +149,7 @@ window.filter = (function () {
 
   return {
     mapFilter: mapFilter,
+    reset: onFormReset,
   };
 
 })();

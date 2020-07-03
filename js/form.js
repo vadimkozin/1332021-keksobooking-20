@@ -33,9 +33,9 @@ window.form = (function () {
 
     var ok = (priceElement.value >= minPrice) || loading;
     if (ok) {
-      unselectItem(priceElement);
+      unselectItems(priceElement);
     } else {
-      selectedItem(priceElement);
+      selectedItems(priceElement);
     }
   }
 
@@ -44,17 +44,33 @@ window.form = (function () {
     synchronizeTypeWithPrice(type);
   }
 
-  function selectedItem(element) {
-    element.style.outline = '2px solid red';
+  function selectedItems(item) {
+    var value = '2px solid red';
+
+    if (Array.isArray(item)) {
+      item.forEach(function (it) {
+        it.style.outline = value;
+      });
+    } else {
+      item.style.outline = value;
+    }
   }
 
-  function unselectItem(element) {
-    element.style.outline = 'none';
+  function unselectItems(item) {
+    var value = 'none';
+
+    if (Array.isArray(item)) {
+      item.forEach(function (it) {
+        it.style.outline = value;
+      });
+    } else {
+      item.style.outline = value;
+    }
   }
 
   function onFormInvalid(evt) {
     var element = evt.target;
-    selectedItem(element);
+    selectedItems(element);
 
     if (evt.target.name === 'title') {
       onInvalidTitle(evt);
@@ -65,9 +81,9 @@ window.form = (function () {
     var element = evt.target;
 
     if (element.validity.valid) {
-      unselectItem(element);
+      unselectItems(element);
     } else {
-      selectedItem(element);
+      selectedItems(element);
     }
 
     if (evt.target.name === 'title') {
@@ -84,8 +100,10 @@ window.form = (function () {
     if (valid) {
       window.backend.save(new FormData(formElement), onFormSaved, onFormError);
     }
+
     function onFormSaved() {
-      onFormReset();
+      formElement.reset();
+      window.filter.reset();
       window.pin.removePins();
       window.main.start();
       window.message.showSuccess();
@@ -96,13 +114,15 @@ window.form = (function () {
   }
 
   function onFormReset() {
-
     formElement.reset();
+    window.filter.reset();
+    window.pin.removePins();
 
     setTimeout(function () {
+      unselectItems([titleElement, roomElement, priceElement]);
       synchronizeTypeWithPrice(typeElement.value, true);
-    }, 100);
-
+      window.main.start();
+    }, 0);
   }
 
   function onRoomChange() {
@@ -125,12 +145,12 @@ window.form = (function () {
 
     function setAlarmStyle(roomsCount) {
       roomElement.setCustomValidity(alarm[roomsCount]);
-      selectedItem(roomElement);
+      selectedItems(roomElement);
     }
 
     function setOrdinaryStyle() {
       roomElement.setCustomValidity('');
-      unselectItem(roomElement);
+      unselectItems(roomElement);
     }
 
     function setStyle(roomsCount, isAlarm) {
@@ -246,6 +266,14 @@ window.form = (function () {
     },
 
   };
+
+  // для отладки - быстрое заполнение значений формы
+  // function init() {
+  //   titleElement.value = '1234567890- 1234567890- 1234567890-';
+  //   guestElement.value = '1';
+  //   priceElement.value = '1001';
+  // }
+  // init();
 
   return {
     setAddress: address.setAddress.bind(address),

@@ -65,12 +65,7 @@ window.main = (function () {
       // снятие обработчиков с главной метки
       mainPin.removeHandle();
 
-      // запоминаем положение главной метки
-      if (!mainPin.location) {
-        mainPin.location = getLocation(mainPin.element);
-      }
     }
-
   }
 
   function goInActiveState() {
@@ -102,9 +97,15 @@ window.main = (function () {
     window.form.setAddress(mainPin.element, 'active');
   };
 
+  // начало: НЕ активное состояние + главная метка в ожидании действий
   function start() {
     goInActiveState();
     window.move.init(mainPin.element, mainPin.element, options, goActiveState, onMainPinMove);
+  }
+
+  // запоминаем положение главной метки
+  if (!mainPin.location) {
+    mainPin.location = getLocation(mainPin.element);
   }
 
   start();

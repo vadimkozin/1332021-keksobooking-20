@@ -50,24 +50,33 @@ window.data = (function () {
       }
     },
 
-    // получить Предложения по критерию
+    /**
+     * получить Предложения по критерию
+     * @param {Object} options - опции фильтра : {type, price, rooms, guests, features}
+     * @return {Array} - массив предложений
+     */
+    //
     getOffersByCrit: function (options) {
-      options = options || {};
-      options.type = options.type || 'any'; // any, palace, flat, house, bungalo
-      options.max = options.max || window.cfg.OFFERS_MAX;
+      var opts = (options === undefined) ? {} : Object.assign({}, options);
+      opts.max = opts.max || window.cfg.OFFERS_MAX;
+      opts.type = opts.type || 'any';
+      opts.price = opts.price || 'any';
+      opts.rooms = opts.rooms || 'any';
+      opts.guests = opts.guests || 'any';
+      opts.features = opts.features || '';
 
-      // 1 критерий - тип жилья
-      // 2 критерий - не более чем options.max
-      var array = (options.type === 'any')
-        ? window.random.getPartArray(this.offers_, options.max)
-        : this.offers_.filter(function (offer) {
-          return offer.offer.type === options.type;
-        }).slice(0, options.max);
+      return window.filter.mapFilter
+        .init(data.getOffers().slice())
+        .byKey('type', opts.type)
+        .byPrice('price', opts.price)
+        .byNumber('rooms', opts.rooms)
+        .byNumber('guests', opts.guests)
+        .byFeatures('features', opts.features)
+        .getResult()
+        .slice(0, opts.max);
+    },
 
-      return array;
-    }
   };
-
 
   return {
     readOffers: data.readOffers.bind(data),

@@ -28,23 +28,23 @@ window.main = (function () {
 
     // установка обработчиков на главную метку
     installHandle: function () {
-      // this.element.addEventListener('mousedown', onMousedownMapPinMain);
-      this.element.addEventListener('keydown', onKeydownMapPinMain);
+      // this.element.addEventListener('mousedown', onElementMousedown);
+      this.element.addEventListener('keydown', onElementKeydown);
     },
 
     // снятие обработчиков с главной метки
     removeHandle: function () {
-      // this.element.removeEventListener('mousedown', onMousedownMapPinMain);
-      this.element.removeEventListener('keydown', onKeydownMapPinMain);
+      // this.element.removeEventListener('mousedown', onElementMousedown);
+      this.element.removeEventListener('keydown', onElementKeydown);
     },
 
   };
 
-  // function onMousedownMapPinMain(evt) {
+  // function onElementMousedown(evt) {
   //   window.util.isLeftMouseButtonClick(evt, goActiveState);
   // }
 
-  function onKeydownMapPinMain(evt) {
+  function onElementKeydown(evt) {
     window.util.isEnterEvent(evt, goActiveState);
   }
 
@@ -55,22 +55,17 @@ window.main = (function () {
     function onDataRead() {
       // перевод элементов в активное состояние
       window.state.setActiveState();
+
       // заполнение поля адреса в активном состоянии
       window.form.setAddress(mainPin.element, 'active');
+
       // отрисовка похожих объявлений-меток на карте
-      var mapPins = window.map.showPins();
-      // установка обработчиков на метки
-      window.pin.installHandlersOnMapPins(mapPins);
+      window.map.showPins();
+
       // снятие обработчиков с главной метки
       mainPin.removeHandle();
-      // запоминаем положение главной метки
-      if (!mainPin.location) {
-        mainPin.location = getLocation(mainPin.element);
-      }
-      // установка позиции элемента '.map'
-      // setMapBackgoundPosition();
-    }
 
+    }
   }
 
   function goInActiveState() {
@@ -83,9 +78,6 @@ window.main = (function () {
     // ТЗ: Поле адреса должно быть заполнено всегда, в том числе сразу после открытия страницы (в неактивном состоянии).
     window.form.setAddress(mainPin.element, 'inactive');
 
-    // снятие обработчиков с меток
-    window.pin.removeHandlersOnMapPins();
-
     // установка обработчиков на главную метку
     mainPin.installHandle();
 
@@ -93,14 +85,6 @@ window.main = (function () {
     window.card.close();
 
   }
-
-  // function setMapBackgoundPosition() {
-  //   var map = document.querySelector('.map');
-  //   if (map) {
-  //     map.style.backgroundPositionX = 0;
-  //     map.style.backgroundPositionY = 0;
-  //   }
-  // }
 
   // Подготовка главной метки к перетаскиванию
   var options = {
@@ -113,9 +97,15 @@ window.main = (function () {
     window.form.setAddress(mainPin.element, 'active');
   };
 
+  // начало: НЕ активное состояние + главная метка в ожидании действий
   function start() {
     goInActiveState();
     window.move.init(mainPin.element, mainPin.element, options, goActiveState, onMainPinMove);
+  }
+
+  // запоминаем положение главной метки
+  if (!mainPin.location) {
+    mainPin.location = getLocation(mainPin.element);
   }
 
   start();

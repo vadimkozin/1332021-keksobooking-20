@@ -36,7 +36,7 @@ window.card = (function () {
     cardTemplate: document.querySelector('#card').content.querySelector('.popup'),
 
     // ссылка на кнопку закрытия карточки
-    cardClose: undefined,
+    cardClose: null,
 
     // возвращает список характеристик (ul) объекта размещения
     getListFeatures: function (features) {
@@ -131,7 +131,7 @@ window.card = (function () {
 
     // функция обратного вызова, применяется при закрытии карточки
     // поле заполняется извне этого объекта в момент создания карточки
-    cbCardClose: undefined,
+    cbCardClose: null,
 
     // обработчик на кнопку закрытия по клику
     onCardCloseClick: function () {

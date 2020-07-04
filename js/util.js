@@ -55,6 +55,17 @@ window.util = (function () {
         node.remove();
       }, timeout);
     },
-
+    trimSpace: function (str) {
+      return str.replace(/\s+/g, '');
+    },
+    // проверяет вхождение элементов массива what в массив where
+    isArrayContainsArray: function (where, what) {
+      for (var i = 0; i < what.length; i++) {
+        if (!where.includes(what[i])) {
+          return false;
+        }
+      }
+      return true;
+    }
   };
 })();

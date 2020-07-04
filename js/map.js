@@ -20,22 +20,25 @@ window.map = (function () {
     showPins: function (options) {
 
       // ТЗ: Отрисуйте сгенерированные DOM-элементы в блок .map__pins
-      var mapPins = document.querySelector('.map__pins');
+      var mapPinsElement = document.querySelector('.map__pins');
 
       // селектор для выборки всех меток кроме главной
       var pinSelector = '.map__pin:not(.map__pin--main)';
 
       // удаляем существующие метки (если есть)
-      document.querySelectorAll(pinSelector).forEach(function (it) {
-        it.remove();
-      });
+      window.pin.removePins();
 
-      // вставляем метки с Предложениями жилья на карту
-      // mapPins.appendChild(this.createPins(window.data.getOffers()));
-      mapPins.appendChild(this.createPins(window.data.getOffersByCrit(options)));
+      // добавляем метки с Предложениями жилья на карту c учётом критериев
+      mapPinsElement.appendChild(this.createPins(window.data.getOffersByCrit(options)));
+
+      // созданные метки
+      var pinElements = document.querySelectorAll(pinSelector);
+
+      // установка обработчиков на метки
+      window.pin.installHandlersOnMapPins(pinElements);
 
       // возвращаем созданные метки
-      return document.querySelectorAll(pinSelector);
+      return pinElements;
 
     },
 

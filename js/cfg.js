@@ -3,6 +3,7 @@
 
 window.cfg = (function () {
   return {
+    FILE_TYPES: ['gif', 'jpg', 'jpeg', 'png', 'webp', 'svg'],
     url: {
       DATA: 'https://javascript.pages.academy/keksobooking/data',
       SAVE: 'https://javascript.pages.academy/keksobooking',

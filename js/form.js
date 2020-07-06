@@ -117,6 +117,7 @@ window.form = (function () {
     formElement.reset();
     window.filter.reset();
     window.pin.removePins();
+    window.reader.reset();
 
     setTimeout(function () {
       unselectItems([titleElement, roomElement, priceElement]);
@@ -268,12 +269,12 @@ window.form = (function () {
   };
 
   // для отладки - быстрое заполнение значений формы
-  // function init() {
-  //   titleElement.value = '1234567890- 1234567890- 1234567890-';
-  //   guestElement.value = '1';
-  //   priceElement.value = '1001';
-  // }
-  // init();
+  function init() {
+    titleElement.value = '1234567890- 1234567890- 1234567890-';
+    guestElement.value = '1';
+    priceElement.value = '1001';
+  }
+  init();
 
   return {
     setAddress: address.setAddress.bind(address),

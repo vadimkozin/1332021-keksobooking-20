@@ -269,12 +269,12 @@ window.form = (function () {
   };
 
   // для отладки - быстрое заполнение значений формы
-  function init() {
-    titleElement.value = '1234567890- 1234567890- 1234567890-';
-    guestElement.value = '1';
-    priceElement.value = '1001';
-  }
-  init();
+  // function init() {
+  //   titleElement.value = '1234567890- 1234567890- 1234567890-';
+  //   guestElement.value = '1';
+  //   priceElement.value = '1001';
+  // }
+  // init();
 
   return {
     setAddress: address.setAddress.bind(address),

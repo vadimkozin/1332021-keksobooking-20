@@ -117,6 +117,7 @@ window.form = (function () {
     formElement.reset();
     window.filter.reset();
     window.pin.removePins();
+    window.reader.reset();
 
     setTimeout(function () {
       unselectItems([titleElement, roomElement, priceElement]);

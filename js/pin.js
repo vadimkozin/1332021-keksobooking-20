@@ -4,10 +4,6 @@
 window.pin = (function () {
 
   var func = {
-    trimSpaces: function (str) {
-      return str.replace(/\s/g, '');
-    },
-
     getLocation: function (offer) {
 
       var left = Math.round((Number(offer.location.x) - window.cfg.mark.WIDTH / 2)) + 'px';

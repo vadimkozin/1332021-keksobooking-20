@@ -104,10 +104,7 @@ window.form = (function () {
     }
 
     function onFormSaved() {
-      formElement.reset();
-      window.filter.reset();
-      window.pin.removePins();
-      window.main.start();
+      onFormReset(evt);
       window.message.showSuccess();
     }
     function onFormError(message) {

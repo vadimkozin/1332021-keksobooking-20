@@ -60,7 +60,7 @@ window.filter = (function () {
   }
   function onFeaturesChange(evt) {
     var key = evt.target.value;
-    features[key] = (featuresSet[key].checked) ? true : false;
+    features[key] = (featuresSet[key].checked);
     filter.features = getFeatures(features);
     updateMapPins();
   }
@@ -123,11 +123,11 @@ window.filter = (function () {
         this.array = this.array.filter(function (it) {
           switch (value) {
             case 'middle':
-              return (it.offer[key] >= 10000 && it.offer[key] <= 50000) ? true : false;
+              return (it.offer[key] >= 10000 && it.offer[key] <= 50000);
             case 'low':
-              return (it.offer[key] < 10000) ? true : false;
+              return (it.offer[key] < 10000);
             case 'high':
-              return (it.offer[key] > 50000) ? true : false;
+              return (it.offer[key] > 50000);
             default:
               return false;
           }
@@ -140,7 +140,7 @@ window.filter = (function () {
       if (value !== 'any') {
         value = parseInt(value, 10);
         this.array = this.array.filter(function (it) {
-          return (it.offer[key] === value) ? true : false;
+          return (it.offer[key] === value);
         });
       }
       return this;

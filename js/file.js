@@ -14,13 +14,8 @@ window.file = (function () {
 
     fileElement.addEventListener('change', function () {
       var file = fileElement.files[0];
-      var fileName = file.name.toLowerCase();
 
-      var ok = types.some(function (it) {
-        return fileName.endsWith(it);
-      });
-
-      if (ok) {
+      if (isTypeFileOk(file, types)) {
         var reader = new FileReader();
 
         reader.addEventListener('load', function () {
@@ -52,8 +47,7 @@ window.file = (function () {
 
       Object.keys(files).forEach(function (it) {
         var file = files[it];
-        var ok = isTypeFileOk(file, types);
-        if (ok) {
+        if (isTypeFileOk(file, types)) {
           var reader = new FileReader();
           reader.onload = function () {
             callback(reader.result);

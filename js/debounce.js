@@ -1,10 +1,10 @@
 'use strict';
 // «устранения дребезга»
 
-(function () {
+window.debounce = (function () {
   var DEBOUNCE_INTERVAL = 500; // ms
 
-  window.debounce = function (cb, element) {
+  return function (cb, element) {
 
     var isWaiting = false;
     var timer = null;
@@ -19,8 +19,8 @@
       if (isWaiting) {
         return;
       }
-
-      disableElement(isWaiting = true);
+      isWaiting = true;
+      disableElement(true);
 
       cb.apply(null, arguments);
 
@@ -29,7 +29,8 @@
       }
 
       timer = setTimeout(function () {
-        disableElement(isWaiting = false);
+        isWaiting = false;
+        disableElement(false);
       }, DEBOUNCE_INTERVAL);
     };
   };

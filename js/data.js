@@ -18,14 +18,9 @@ window.data = (function () {
 
     // возвращает Предложение по его id
     getOfferById: function (id) {
-
-      for (var i = 0; i < this.offers_.length; i++) {
-        if (this.offers_[i].id === id) {
-          return this.offers_[i];
-        }
-      }
-
-      return this.offers_[0];
+      return this.offers_.find(function (it) {
+        return it.id === id;
+      });
     },
 
     // чтение всех 'Предложений'

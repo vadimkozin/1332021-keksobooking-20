@@ -10,11 +10,13 @@ window.form = (function () {
   var timeinElement = document.querySelector('#timein');
   var timeoutElement = document.querySelector('#timeout');
   var formElement = document.querySelector('.ad-form');
+  var formReset = document.querySelector('.ad-form__reset');
 
   formElement.addEventListener('invalid', onFormInvalid, true);
   formElement.addEventListener('input', onFormInput, false);
   formElement.addEventListener('submit', onFormSubmit, false);
-  formElement.addEventListener('reset', onFormReset, false);
+  // formElement.addEventListener('reset', onFormReset, false);
+  formReset.addEventListener('click', onFormReset, false); // из-за Edge 'click' вместо 'reset'
   roomElement.addEventListener('change', onRoomChange, false);
   guestElement.addEventListener('change', onGuestChange, false);
   typeElement.addEventListener('change', onTypeChange, false);
@@ -113,7 +115,8 @@ window.form = (function () {
     }
   }
 
-  function onFormReset() {
+  function onFormReset(evt) {
+    evt.preventDefault();
     formElement.reset();
     window.filter.reset();
     window.pin.removePins();
@@ -267,14 +270,6 @@ window.form = (function () {
     },
 
   };
-
-  // для отладки - быстрое заполнение значений формы
-  // function init() {
-  //   titleElement.value = '1234567890- 1234567890- 1234567890-';
-  //   guestElement.value = '1';
-  //   priceElement.value = '1001';
-  // }
-  // init();
 
   return {
     setAddress: address.setAddress.bind(address),

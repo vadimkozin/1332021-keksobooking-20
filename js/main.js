@@ -28,21 +28,15 @@ window.main = (function () {
 
     // установка обработчиков на главную метку
     installHandle: function () {
-      // this.element.addEventListener('mousedown', onElementMousedown);
       this.element.addEventListener('keydown', onElementKeydown);
     },
 
     // снятие обработчиков с главной метки
     removeHandle: function () {
-      // this.element.removeEventListener('mousedown', onElementMousedown);
       this.element.removeEventListener('keydown', onElementKeydown);
     },
 
   };
-
-  // function onElementMousedown(evt) {
-  //   window.util.isLeftMouseButtonClick(evt, goActiveState);
-  // }
 
   function onElementKeydown(evt) {
     window.util.isEnterEvent(evt, goActiveState);
@@ -97,15 +91,15 @@ window.main = (function () {
     window.form.setAddress(mainPin.element, 'active');
   };
 
+  // запоминаем положение главной метки
+  if (!mainPin.location) {
+    mainPin.location = getLocation(mainPin.element);
+  }
+
   // начало: НЕ активное состояние + главная метка в ожидании действий
   function start() {
     goInActiveState();
     window.move.init(mainPin.element, mainPin.element, options, goActiveState, onMainPinMove);
-  }
-
-  // запоминаем положение главной метки
-  if (!mainPin.location) {
-    mainPin.location = getLocation(mainPin.element);
   }
 
   start();

@@ -9,9 +9,9 @@ window.map = (function () {
     createPins: function (offers) {
       var fragment = document.createDocumentFragment();
 
-      for (var i = 0; i < offers.length; i++) {
-        fragment.appendChild(window.pin.createPin(offers[i]));
-      }
+      offers.forEach(function (it) {
+        fragment.appendChild(window.pin.createPin(it));
+      });
 
       return fragment;
     },

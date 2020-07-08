@@ -57,8 +57,6 @@ window.move = (function () {
     // изначальный z-index передвигаемого объекта
     var zIndexSave = style.zIndex;
 
-    // handle.addEventListener('mousedown', onMouseDown);
-
     // для предохранения от повторного вызова init() регестрирую событие как 'onmousedown'
     // чтобы слушатель события 'mousedown' был только один
     handle.onmousedown = onMouseDown;
@@ -80,12 +78,9 @@ window.move = (function () {
         y: evt.clientY
       };
 
-      // var dragged = false;
-
       function onMouseMove(moveEvt) {
         moveEvt.preventDefault();
 
-        // dragged = true;
         movableObject.style.zIndex = opts.zIndex;
 
         var shift = {
@@ -120,14 +115,6 @@ window.move = (function () {
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
 
-        // if (dragged) {
-        //   var onClickPreventDefault = function (clickEvt) {
-        //     clickEvt.preventDefault();
-        //     handle.removeEventListener('click', onClickPreventDefault);
-        //   };
-        //   handle.addEventListener('click', onClickPreventDefault);
-        // }
-
         if (opts.isReturnAsItWas) {
           movableObject.style.top = originalCoords.top;
           movableObject.style.left = originalCoords.left;
@@ -139,6 +126,7 @@ window.move = (function () {
 
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseup', onMouseUp);
+
     }
   }
 
